@@ -15,7 +15,7 @@ updates_per_checkpoint = 4
 args = get_args('run_baseline.py', ep_length=run_steps, sess_path=sess_path)
 
 env_config = {
-                'headless': True, 'save_final_state': True, 'early_stop': False, 
+                'headless': False, 'save_final_state': True, 'early_stop': False, 
                 'action_freq': 24, 'init_state': '../fast_text_start.state', 'max_steps': run_steps,
                 'print_rewards': True, 'save_video': True, 'session_path': sess_path,
                 'gb_path': '../PokemonRed.gb', 'debug': False, 'sim_frame_dist': 2_000_000.0
@@ -42,7 +42,7 @@ if exists(file_name + '.zip'):
             }
     model = PPO.load(file_name, env=env, custom_objects=custom_objects)
 else:
-    model = PPO('CnnPolicy', env, verbose=1, n_steps=run_steps*runs_per_update, batch_size=128, n_epochs=3, gamma=0.98)
+    model = PPO('CnnPolicy', env, verbose=1, n_steps=run_steps*runs_per_update, batch_size=512, n_epochs=10, gamma=0.98)
 
 for i in range(learn_steps):
     model.learn(total_timesteps=run_steps*runs_per_update*updates_per_checkpoint)

@@ -32,7 +32,7 @@ if __name__ == '__main__':
     args = get_args('run_baseline_parallel.py', ep_length=ep_length, sess_path=sess_path)
 
     env_config = {
-                'headless': True, 'save_final_state': True, 'early_stop': False,
+                'headless': False, 'save_final_state': True, 'early_stop': False,
                 'action_freq': 24, 'init_state': '../has_pokedex_nballs.state', 'max_steps': ep_length, 
                 'print_rewards': True, 'save_video': False, 'fast_video': True, 'session_path': sess_path,
                 'gb_path': '../PokemonRed.gb', 'debug': False, 'sim_frame_dist': 2_000_000.0
@@ -40,7 +40,7 @@ if __name__ == '__main__':
     
     env_config = change_env(env_config, args)
     
-    num_cpu = 44 #64 #46  # Also sets the number of episodes per training iteration
+    num_cpu = 32 #64 #46  # Also sets the number of episodes per training iteration
     env = SubprocVecEnv([make_env(i, env_config) for i in range(num_cpu)])
     
     checkpoint_callback = CheckpointCallback(save_freq=ep_length, save_path=sess_path,
@@ -59,7 +59,7 @@ if __name__ == '__main__':
         model.rollout_buffer.n_envs = num_cpu
         model.rollout_buffer.reset()
     else:
-        model = PPO('CnnPolicy', env, verbose=1, n_steps=ep_length, batch_size=512, n_epochs=1, gamma=0.999)
+        model = PPO('CnnPolicy', env, verbose=1, n_steps=ep_length, batch_size=512, n_epochs=10, gamma=0.999)
     
     for i in range(learn_steps):
         model.learn(total_timesteps=(ep_length)*num_cpu*1000, callback=checkpoint_callback)
